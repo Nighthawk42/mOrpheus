@@ -1,0 +1,96 @@
+# settings.yaml
+
+# -------------------------------
+# General Application Settings
+# -------------------------------
+general:
+  log_level: "INFO" # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  interaction_mode: "push_to_talk" # "push_to_talk", "hotword", "both"
+  post_response_delay_sec: 0.5
+
+# -------------------------------
+# Audio Input/Output
+# -------------------------------
+audio:
+  input_device: null
+  output_device: null
+  # --- Voice Activity Detection (VAD) ---
+  vad:
+    enabled: true # Set to true to enable VAD (EXPERIMENTAL)
+    sample_rate: 16000 # Should match STT and Hotword expected rate
+    frame_duration_ms: 30
+    aggressiveness: 2
+    silence_duration_ms: 1200
+    min_record_duration_ms: 500
+
+# -------------------------------
+# Hotword Detection (OpenWakeWord)
+# -------------------------------
+hotword:
+  enabled: false              # Set to true to enable hotword detection (EXPERIMENTAL) - This is fully broken for now, keep it false.
+  # List of wake word models to listen for.
+  # Find available models in the openwakeword documentation or train your own.
+  # Example pre-trained models: "alexa", "hey_mycroft", "hey_jarvis", "timer"
+  models: ["hey_jarvis"]
+  # Path for custom models (optional):
+  # custom_model_paths: ["path/to/my_custom_model.onnx"]
+  inference_framework: "onnx" # Usually 'onnx', could be 'tflite' if supported/used
+  threshold: 0.7              # Confidence threshold for detection (0.0 to 1.0)
+  trigger_level: 1            # How many positive frames needed to trigger (usually 1)
+  chunk_size_ms: 1280         # How much audio (ms) to feed the model at once (check owm recommendations)
+
+# -------------------------------
+# STT (Speech-to-Text - Faster Whisper)
+# -------------------------------
+stt:
+  model_size: "small.en"      # Whisper model size (tiny.en, base.en, small.en, medium.en, large-v2, large-v3)
+                              # Or path to a converted CTranslate2 model directory
+  device: "cuda"              # "cuda" or "cpu"
+  compute_type: "float16"     # "float16", "int8_float16", "int8", "float32" (check hardware/model support)
+  # --- Transcription Options ---
+  language: null              # Language code (e.g., "en", "es") or null for auto-detect
+  beam_size: 5
+  # vad_filter: false         # Use faster-whisper's internal VAD? (Keeping our external VAD for now)
+  # vad_parameters:           # Settings if vad_filter=true (e.g., min_silence_duration_ms: 500)
+  #   min_silence_duration_ms: 1000
+
+# -------------------------------
+# LLM (Language Model - LM Studio)
+# -------------------------------
+llm:
+  base_url: "http://127.0.0.1:1234/v1"
+  request_timeout_sec: 60.0
+  max_retries: 3
+  # --- Chat Completion ---
+  chat:
+    endpoint: "/chat/completions"
+    model: "gemma-3-12b-it"
+    system_prompt: "You are a helpful and concise voice assistant named Morpheus."
+    max_tokens: 300
+    temperature: 0.7
+    top_p: 0.9
+    repetition_penalty: 1.1
+
+# -------------------------------
+# TTS (Text-to-Speech - LM Studio/SNAC)
+# -------------------------------
+tts:
+  # --- API Settings ---
+  endpoint: "/completions"
+  model: "orpheus-3b-ft.gguf@q2_k"
+  # --- Synthesis Parameters ---
+  default_voice: "tara"
+  max_tokens: 8192
+  temperature: 0.6
+  top_p: 0.9
+  repetition_penalty: 1.0
+  speed: 1.0
+  # --- Audio Output ---
+  sample_rate: 24000
+  normalize_volume: false
+  # --- Text Segmentation ---
+  segmentation:
+    max_words_per_segment: 50
+  # --- Output Files ---
+  output_dir: "outputs"
+  clear_output_on_start: true

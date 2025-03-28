@@ -1,12 +1,49 @@
-# Install PyTorch with CUDA support as needed.
-# For example, if using CUDA 12.6, run:
-# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126
+# requirements.txt
 
-openai-whisper
+# Core
+PyYAML>=6.0
 sounddevice>=0.4.6
-numpy>=1.24
+numpy>=1.26.0,<2.0 # Let's start below 2.0 for safety, pip might upgrade if needed/possible
 scipy>=1.10.0
-webrtcvad
-requests>=2.31.0
-pyyaml>=6.0.1
-snac
+requests>=2.30.0
+
+# STT (Speech-to-Text - Faster Whisper)
+faster-whisper>=1.0.0
+# Dependencies for faster-whisper:
+ctranslate2>=4.0.0 # Check compatibility with your CUDA/cuDNN (See faster-whisper docs)
+huggingface_hub>=0.13
+tokenizers>=0.13,<1
+# onnxruntime is listed below (shared dependency)
+PyAV>=11.0.0 # Replaces ffmpeg requirement
+tqdm # For progress bars during model download
+
+# Hotword Detection (OpenWakeWord)
+openwakeword>=0.5.0
+# Dependencies for openwakeword:
+# onnxruntime is listed below (shared dependency)
+# numpy is listed above
+# scipy is listed above
+protobuf>=3.20.0,<5.0.0 # Common ONNX dependency, pin below 5 for safety
+sounddevice # Already listed above
+
+# Shared Dependencies
+onnxruntime-gpu>=1.17.0 # Use GPU version. Ensure version matches CUDA/cuDNN needs. Check ONNX Runtime docs.
+
+# VAD (Voice Activity Detection)
+webrtcvad-wheels>=2.0.10.post2 # Keep for recording control
+
+# Console UI
+rich>=13.7.0
+
+# TTS Audio Decoding (SNAC)
+# Assuming 'snac' is installed separately, e.g., from a specific source/repo
+# If it's on PyPI:
+# snac>=[version]
+# torch is required by snac
+torch>=2.0.0 --index-url https://download.pytorch.org/whl/cu121 # Example for CUDA 12.1, adjust for your 12.8
+
+# NOTE: Adjust torch install URL based on your exact CUDA version (e.g., cu118, cu121, cpu)
+# NOTE: For onnxruntime-gpu, ensure your CUDA and cuDNN versions are compatible.
+# NOTE: For ctranslate2, ensure your CUDA and cuDNN versions are compatible (CUDA 12/cuDNN 9 preferred for latest). Check faster-whisper/CTranslate2 docs. May need pinning like: ctranslate2==3.24.0 for CUDA 11
+# NOTE: Ensure the 'snac' library is installed according to its specific instructions.
+# NOTE: Starting numpy below 2.0 for initial safety, pip's resolver might adjust this.
